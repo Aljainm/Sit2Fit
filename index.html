@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sit2Fit</title>
+    <!-- Google Fonts for icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* CSS variables for a dark theme */
+        :root {
+            --primary-color: #5C67DE;
+            --secondary-color: #3B426D;
+            --text-color: #E2E4F2;
+            --subtle-text-color: #9CA3AF;
+            --background-color: #121212;
+            --card-background: #1C1C1C;
+            --border-color: #2D2D2D;
+            --border-radius: 16px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            --accent-color: #34D399;
+            --danger-color: #EF4444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* App Container for mobile-like appearance */
+        #app-container {
+            width: 100%;
+            max-width: 450px;
+            height: 100%;
+            max-height: 850px;
+            background: var(--background-color);
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: var(--background-color);
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
+            overflow-y: auto;
+        }
+
+        .screen.active {
+            display: flex;
+            transform: translateX(0);
+        }
+        
+        .screen.slide-in-right {
+            transform: translateX(100%);
+        }
+
+        .screen.slide-in-left {
+            transform: translateX(-100%);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background-color: var(--card-background);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h2 {
+            flex-grow: 1;
+            text-align: center;
+            margin: 0;
+            font-size: 1.25rem;
+            color: var(--text-color);
+        }
+        
+        .header .back-button, .header .settings-button {
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+        
+        .header .settings-button {
+            margin-left: auto;
+        }
+
+        .splash-content, .centered-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .logo-img {
+            width: 150px;
+            height: auto;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+        }
+
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .content h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+        
+        .content h3 {
+            font-size: 1.1rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .content p {
+            font-size: 0.9rem;
+            color: var(--subtle-text-color);
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            color: var(--subtle-text-color);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .button, .action-button {
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            width: 100%;
+        }
+
+        .button.primary-button {
+            background-color: var(--primary-color);
+            color: var(--card-background);
+            box-shadow: var(--shadow);
+            margin-top: 1rem;
+        }
+
+        .button.secondary-button {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            border: 1px solid var(--border-color);
+            margin-top: 0.5rem;
+        }
+
+        .button.outline-button {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            margin-top: 1rem;
+        }
+
+        .button.small-button {
+            width: auto;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            margin-top: 0;
+        }
+
+        .button:disabled {
+            background-color: #333;
+            cursor: not-allowed;
+            color: #666;
+        }
+
+        .bottom-button {
+            position: sticky;
+            bottom: 20px;
+            left: 0;
+            margin-top: 20px;
+        }
+        
+        .input-group, .question-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--subtle-text-color);
+        }
+        
+        .input-group input, textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            font-size: 1rem;
+            box-sizing: border-box;
+            background-color: var(--card-background);
+            color: var(--text-color);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .radio-options, .chip-options, .checkbox-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .radio-card, .chip-card, .checkbox-card {
+            border: 2px solid transparent;
+            padding: 15px;
+            border-radius: 12px;
+            background-color: var(--card-background);
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1 1 calc(50% - 10px);
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+        }
+        
+        .radio-card h4, .checkbox-card h4 {
+            margin: 0;
+            font-size: 1rem;
+        }
+        
+        .radio-card p, .checkbox-card p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: var(--subtle-text-color);
+        }
+        
+        .radio-card input, .chip-card input, .checkbox-card input {
+            display: none;
+        }
+        
+        .radio-card.selected, .chip-card.selected, .checkbox-card.selected,
+        .radio-card input:checked + div, .chip-card input:checked + div, .checkbox-card input:checked + div {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+        
+        .chip-card {
+            flex: 1 1 auto;
+            max-width: fit-content;
+            padding: 10px 15px;
+        }
+
+        .card {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .card h3 {
+            margin-top: 0;
+            color: var(--text-color);
+        }
+        
+        .score-card {
+            text-align: center;
+        }
+
+        .progress-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 20px auto;
+        }
+        
+        .progress-svg {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-bg {
+            fill: none;
+            stroke: #333;
+            stroke-width: 10;
+        }
+        
+        .progress-circle {
+            fill: none;
+            stroke: var(--accent-color);
+            stroke-width: 10;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.3s;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .dynamic-nudge-text {
+            font-weight: 500;
+            margin: 0;
+            text-align: center;
+            color: var(--text-color);
+        }
+        
+        .dynamic-nudge-text b {
+            color: var(--primary-color);
+        }
+        
+        .checklist-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .checklist-card li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+        
+        .check-icon, .uncheck-icon {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        
+        .check-icon {
+            color: var(--accent-color);
+        }
+        
+        .uncheck-icon {
+            color: #555;
+        }
+        
+        .text-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .quick-actions-card .action-buttons {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .action-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100px;
+            height: 100px;
+            border-radius: var(--border-radius);
+            border: 2px solid var(--border-color);
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .action-button span.material-icons {
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            background-color: var(--card-background);
+            border-top: 1px solid var(--border-color);
+            position: sticky;
+            bottom: 0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #9CA3AF;
+            font-size: 0.75rem;
+            padding: 8px 0;
+            transition: color 0.2s;
+        }
+        
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+        
+        .nav-item span.material-icons {
+            font-size: 24px;
+        }
+        
+        .routine-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .search-filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            flex-grow: 1;
+        }
+        
+        .filter-select {
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            font-size: 1rem;
+            background-color: var(--card-background);
+            color: var(--text-color);
+        }
+
+        .routine-card {
+            display: flex;
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 15px;
+            gap: 15px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
+
+        .routine-card input[type="checkbox"] {
+            display: block;
+            width: 20px;
+            height: 20px;
+        }
+
+        .routine-card .routine-info {
+            flex-grow: 1;
+        }
+        
+        .routine-thumbnail {
+            width: 80px;
+            height: 80px;
+            background-color: var(--secondary-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--subtle-text-color);
+            font-size: 0.8rem;
+        }
+        
+        .routine-info {
+            flex-grow: 1;
+        }
+        
+        .routine-info h4 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--text-color);
+        }
+        
+        .routine-info p {
+            margin: 0.2rem 0;
+            font-size: 0.85rem;
+            color: var(--subtle-text-color);
+        }
+
+        .routine-player-content {
+            text-align: center;
+        }
+        
+        .visual-guide-area {
+            width: 100%;
+            height: 200px;
+            background-color: var(--secondary-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--subtle-text-color);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        
+        .timer-display {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .steps-list {
+            text-align: left;
+            background-color: var(--secondary-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .steps-list ol {
+            padding-left: 20px;
+            margin: 0;
+            color: var(--text-color);
+        }
+        
+        .controls-bottom {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .controls-bottom .button {
+            flex: 1;
+        }
+        
+        .setting-section {
+            margin-bottom: 25px;
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+        
+        .setting-section h3 {
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            font-size: 1.1rem;
+            color: var(--text-color);
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+        
+        .setting-item.clickable {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .setting-item.clickable:hover {
+            background-color: var(--secondary-color);
+            border-radius: 8px;
+            padding: 10px;
+            margin: -10px 0;
+        }
+        
+        .setting-value {
+            color: var(--subtle-text-color);
+        }
+        
+        .setting-info-text {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: -10px;
+        }
+        
+        .toggle-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: .4s;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+        
+        .slider.round {
+            border-radius: 28px;
+        }
+        
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .badge-item {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--subtle-text-color);
+        }
+        
+        .badge-icon {
+            font-size: 48px;
+            color: gold;
+        }
+        
+        .badge-item.locked .badge-icon {
+            color: #444;
+        }
+        
+        /* New Styles for Leaderboard */
+        .leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            background-color: var(--secondary-color);
+            border-radius: 12px;
+        }
+        
+        .leaderboard-rank {
+            font-weight: 700;
+            font-size: 1.2rem;
+            width: 30px;
+            text-align: center;
+            color: var(--text-color);
+        }
+
+        .leaderboard-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #555;
+            flex-shrink: 0;
+        }
+        
+        .leaderboard-info {
+            flex-grow: 1;
+        }
+
+        .leaderboard-name {
+            font-weight: 600;
+            margin: 0;
+            color: var(--text-color);
+        }
+
+        .leaderboard-score {
+            font-size: 0.9rem;
+            color: var(--subtle-text-color);
+            margin: 0;
+        }
+        
+        .leaderboard-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+        
+        /* New Styles for Routine Player */
+        .routine-player-content .visual-guide-area {
+            position: relative;
+            background-color: #333;
+            height: 250px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .routine-player-content .visual-guide-area h3 {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            margin: 0;
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .routine-player-content .visual-guide-area .anatomy-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--subtle-text-color);
+        }
+
+        .routine-info-small {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .routine-info-small div {
+            background-color: var(--card-background);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            color: var(--subtle-text-color);
+        }
+
+        .routine-info-small div b {
+            display: block;
+            font-size: 1.2rem;
+            color: var(--text-color);
+        }
+
+        /* New styles for create routine screen */
+        #createRoutineScreen .input-group input {
+            margin-bottom: 20px;
+        }
+
+        #createRoutineScreen .routine-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .footer-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .footer-buttons .button {
+            flex: 1;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <!-- App Container for mobile-like appearance -->
+    <div id="app-container">
+
+        <!-- Screen 1: Splash Screen -->
+        <div id="splashScreen" class="screen active">
+            <div class="splash-content">
+                <!-- Updated logo with a new placeholder that better reflects the user's design -->
+                <img src="https://placehold.co/200x150/ffffff/5C67DE?text=Sit2Fit" alt="Sit2Fit Logo" class="logo-img" style="background-color: #121212;">
+                <h1>Welcome to Sit2Fit</h1>
+                <button class="button primary-button bottom-button" onclick="navigate('loginScreen')">Next</button>
+            </div>
+        </div>
+
+        <!-- Screen 2: Login / Sign-up Screen -->
+        <div id="loginScreen" class="screen">
+            <div class="header">
+                <!-- No back button on login -->
+            </div>
+            <div class="content centered-content">
+                <h1>Get Started</h1>
+                <p>Choose how you'd like to proceed.</p>
+                <button class="button primary-button" onclick="navigate('onboardingWorkday')">Sign in with Company SSO</button>
+                <button class="button secondary-button" onclick="alert('Generic login not available in this demo. Please use SSO.')">Log In</button>
+            </div>
+        </div>
+
+        <!-- Screen 3: Onboarding - Your Workday Preferences -->
+        <div id="onboardingWorkday" class="screen">
+            <div class="header">
+                <span class="material-icons back-button" onclick="navigate('loginScreen')">arrow_back</span>
+                <h2>Setup Your Sit2Fit</h2>
+            </div>
+            <div class="content">
+                <h3>Your Workday Preferences</h3>
+                <p>Help us understand your typical work schedule.</p>
+                <div class="input-group">
+                    <label for="workStartTime">Work Start Time</label>
+                    <input type="time" id="workStartTime" value="09:00">
+                </div>
+                <div class="input-group">
+                    <label for="workEndTime">Work End Time</label>
+                    <input type="time" id="workEndTime" value="18:00">
+                </div>
+                <button class="button primary-button bottom-button" onclick="navigate('onboardingWorkQuestions')">Continue</button>
+            </div>
+        </div>
+
+        <!-- Screen 4: Onboarding - Work-Related Questions -->
+        <div id="onboardingWorkQuestions" class="screen">
+            <div class="header">
+                <span class="material-icons back-button" onclick="navigate('onboardingWorkday')">arrow_back</span>
+                <h2>Setup Your Sit2Fit</h2>
+            </div>
+            <div class="content">
+                <h3>Tell Us About Your Workday</h3>
+                <div class="question-group">
+                    <p>Approximately how many hours do you spend sitting at your desk each workday?</p>
+                    <div class="radio-options">
+                        <label class="radio-card"><input type="radio" name="sittingHours" value="<4"><div><h4>Less than 4 hours</h4></div></label>
+                        <label class="radio-card"><input type="radio" name="sittingHours" value="4-6"><div><h4>4-6 hours</h4></div></label>
+                        <label class="radio-card"><input type="radio" name="sittingHours" value="6-8"><div><h4>6-8 hours</h4></div></d>
+                        <label class="radio-card"><input type="radio" name="sittingHours" value=">8"><div><h4>More than 8 hours</h4></div></label>
+                    </div>
+                </div>
+                <div class="question-group">
+                    <p>What physical discomforts do you *most frequently* experience? (Select all that apply)</p>
+                    <div class="chip-options">
+                        <label class="chip-card"><input type="checkbox" name="discomforts" value="Neck Pain">Neck Pain</label>
+                        <label class="chip-card"><input type="checkbox" name="discomforts" value="Shoulder Stiffness">Shoulder Stiffness</label>
+                        <label class="chip-card"><input type="checkbox" name="discomforts" value="Lower Back Pain">Lower Back Pain</label>
+                        <label class="chip-card"><input type="checkbox" name="discomforts" value="Wrist/Hand Discomfort">Wrist/Hand</label>
+                        <label class="chip-card"><input type="checkbox" name="discomforts" value="Leg/Hip Stiffness">Leg/Hip</label>
+                        <label class="chip-card"><input type="checkbox" name="discomforts" value="Eye Strain">Eye Strain</label>
+                        <label class="chip-card"><input type="checkbox" name="discomforts" value="General Fatigue">Fatigue</label>
+                        <label class="chip-card"><input type="checkbox" name="discomforts" value="None">None</label>
+                    </div>
+                </div>
+                <div class="question-group">
+                    <p>What methods have you tried to mitigate these?</p>
+                    <textarea placeholder="e.g., 'I try to walk around but often forget.'"></textarea>
+                </div>
+                <button class="button primary-button bottom-button" onclick="navigate('onboardingNudge')">Continue</button>
+            </div>
+        </div>
+
+        <!-- Screen 5: Onboarding - Nudge Preference -->
+        <div id="onboardingNudge" class="screen">
+            <div class="header">
+                <span class="material-icons back-button" onclick="navigate('onboardingWorkQuestions')">arrow_back</span>
+                <h2>Setup Your Sit2Fit</h2>
+            </div>
+            <div class="content">
+                <h3>Your Nudge Preference</h3>
+                <div class="radio-options">
+                    <label class="radio-card">
+                        <input type="radio" name="nudgePreference" value="High">
+                        <div>
+                            <h4>High Nudges</h4>
+                            <p>Frequent nudges for short idle times.</p>
+                        </div>
+                    </label>
+                    <label class="radio-card selected">
+                        <input type="radio" name="nudgePreference" value="Medium" checked>
+                        <div>
+                            <h4>Medium Nudges</h4>
+                            <p>Regular, context-aware reminders.</p>
+                        </div>
+                    </label>
+                    <label class="radio-card">
+                        <input type="radio" name="nudgePreference" value="Low">
+                        <div>
+                            <h4>Low Nudges</h4>
+                            <p>Gentle reminders, a few times a day.</p>
+                        </div>
+                    </label>
+                </div>
+                <button class="button primary-button bottom-button" onclick="navigate('onboardingGoals')">Continue</button>
+            </div>
+        </div>
+
+        <!-- Screen 6: Onboarding - Your Goals -->
+        <div id="onboardingGoals" class="screen">
+            <div class="header">
+                <span class="material-icons back-button" onclick="navigate('onboardingNudge')">arrow_back</span>
+                <h2>Setup Your Sit2Fit</h2>
+            </div>
+            <div class="content">
+                <h3>What are your wellness goals?</h3>
+                <div class="chip-options">
+                    <label class="chip-card selected"><input type="checkbox" name="goals" value="Reduce Stiffness" checked>Reduce Stiffness</label>
+                    <label class="chip-card"><input type="checkbox" name="goals" value="Improve Focus">Improve Focus</label>
+                    <label class="chip-card"><input type="checkbox" name="goals" value="Boost Energy">Boost Energy</label>
+                    <label class="chip-card"><input type="checkbox" name="goals" value="Improve Posture">Improve Posture</label>
+                    <label class="chip-card"><input type="checkbox" name="goals" value="Increase Activity Levels">Increase Activity</label>
+                    <label class="chip-card"><input type="checkbox" name="goals" value="Manage Stress">Manage Stress</label>
+                </div>
+                <div class="question-group">
+                    <textarea placeholder="Any specific areas of discomfort? (e.g., Neck, Shoulders, Lower Back)"></textarea>
+                </div>
+                <button class="button primary-button bottom-button" onclick="navigate('onboardingEquipment')">Continue</button>
+            </div>
+        </div>
+
+        <!-- Screen 7: Onboarding - Your Equipment -->
+        <div id="onboardingEquipment" class="screen">
+            <div class="header">
+                <span class="material-icons back-button" onclick="navigate('onboardingGoals')">arrow_back</span>
+                <h2>Setup Your Sit2Fit</h2>
+            </div>
+            <div class="content">
+                <h3>What equipment do you have?</h3>
+                <div class="checkbox-options">
+                    <label class="checkbox-card selected">
+                        <input type="checkbox" name="equipment" value="No Equipment" checked>
+                        <div>
+                            <h4>No Equipment</h4>
+                            <p>Bodyweight-only moves.</p>
+                        </div>
+                    </label>
+                    <label class="checkbox-card">
+                        <input type="checkbox" name="equipment" value="Sit2Fit Pedal">
+                        <div>
+                            <h4>Sit2Fit Pedal</h4>
+                            <p>Connect your smart pedal.</p>
+                        </div>
+                    </label>
+                    <label class="checkbox-card">
+                        <input type="checkbox" name="equipment" value="Resistance Bands">
+                        <div>
+                            <h4>Resistance Bands</h4>
+                            <p>For added strength.</p>
+                        </div>
+                    </label>
+                </div>
+                <button class="button primary-button bottom-button" onclick="finishOnboarding()">Finish Setup</button>
+            </div>
+        </div>
+
+        <!-- Screen 8: Home Screen (Dashboard) -->
+        <div id="homeScreen" class="screen">
+            <div class="header">
+                <h2>Welcome, <span id="userName">Kritika Sinha</span>!</h2>
+                <span class="material-icons settings-button" onclick="navigate('settingsScreen')">settings</span>
+            </div>
+            <div class="content">
+                <p class="subtitle">Keep moving, keep focused.</p>
+
+                <div class="card score-card">
+                    <h3>Today's Score</h3>
+                    <div class="progress-container" onclick="alert('Detailed stats coming soon!')">
+                        <div class="progress-ring">
+                            <svg class="progress-svg" viewBox="0 0 100 100">
+                                <circle class="progress-bg" cx="50" cy="50" r="45"></circle>
+                                <circle class="progress-circle" cx="50" cy="50" r="45" style="stroke-dasharray: 282.74; stroke-dashoffset: 70.685;"></circle>
+                            </svg>
+                            <span class="progress-text" style="color: var(--accent-color);">75%</span>
+                        </div>
+                    </div>
+                    <p class="dynamic-nudge-text">You've been idle for 47 mins. Time for a <b>2-min Seated Twist</b>!</p>
+                    <button class="button outline-button" onclick="startRoutine('2-min Seated Twist')">Start Next Move: 2-min Seated Twist</button>
+                </div>
+
+                <div class="card checklist-card">
+                    <h3>Daily Checklist</h3>
+                    <ul>
+                        <li><span class="material-icons check-icon">check_circle</span> 2-min Seated Twist</li>
+                        <li><span class="material-icons uncheck-icon">radio_button_unchecked</span> 5-min Wrist & Shoulder Stretch</li>
+                        <li><span class="material-icons uncheck-icon">radio_button_unchecked</span> 3-min Standing Neck Circles</li>
+                    </ul>
+                    <a href="#" onclick="navigate('routineLibraryScreen')" class="text-link">View All Routines</a>
+                </div>
+
+                <div class="card quick-actions-card">
+                    <h3>Quick Actions</h3>
+                    <div class="action-buttons">
+                        <button class="action-button" onclick="startRoutine('2-min Generic Break')">
+                            <span class="material-icons">timer</span>
+                            <span>Start 2 min</span>
+                        </button>
+                        <button class="action-button" onclick="alert('Log Walk coming soon!')">
+                            <span class="material-icons">directions_walk</span>
+                            <span>Log Walk</span>
+                        </button>
+                        <button class="action-button" onclick="alert('Log Bands coming soon!')">
+                            <span class="material-icons">fitness_center</span>
+                            <span>Log Bands</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card challenge-card">
+                    <h3>Active Challenge</h3>
+                    <p>Team: Sales Superstars (Rank: 3)</p>
+                    <p>Company Steps Challenge</p>
+                    <a href="#" onclick="navigate('challengesScreen')" class="text-link">View Leaderboard</a>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <button class="nav-item active" onclick="navigate('homeScreen')">
+                    <span class="material-icons">home</span>
+                    <span>Home</span>
+                </button>
+                <button class="nav-item" onclick="navigate('routineLibraryScreen')">
+                    <span class="material-icons">fitness_center</span>
+                    <span>Routines</span>
+                </button>
+                <button class="nav-item" onclick="navigate('challengesScreen')">
+                    <span class="material-icons">emoji_events</span>
+                    <span>Challenges</span>
+                </button>
+                <button class="nav-item" onclick="navigate('progressScreen')">
+                    <span class="material-icons">timeline</span>
+                    <span>Progress</span>
+                </button>
+                <button class="nav-item" onclick="navigate('settingsScreen')">
+                    <span class="material-icons">settings</span>
+                    <span>Settings</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 9: Routine Library Screen -->
+        <div id="routineLibraryScreen" class="screen">
+            <div class="header">
+                <span class="material-icons back-button" onclick="navigate('homeScreen')">arrow_back</span>
+                <h2>Routine Library</h2>
+            </div>
+            <div class="content">
+                <div class="search-filter-bar">
+                    <input type="text" placeholder="Search routines..." class="search-input">
+                    <select class="filter-select">
+                        <option value="">All Durations</option>
+                        <option value="1">1 min</option>
+                        <option value="2">2 min</option>
+                        <option value="5">5 min</option>
+                    </select>
+                    <select class="filter-select">
+                        <option value="">All Equipment</option>
+                        <option value="No Equipment">No Equipment</option>
+                        <option value="Sit2Fit Pedal">Sit2Fit Pedal</option>
+                        <option value="Resistance Bands">Resistance Bands</option>
+                    </select>
+                </div>
+                <button class="button secondary-button" onclick="navigate('createRoutineScreen')">Create Custom Routine</button>
+
+                <div class="routine-list" id="routineLibraryList">
+                    <!-- Dynamic routine cards will be inserted here by JS -->
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <button class="nav-item" onclick="navigate('homeScreen')">
+                    <span class="material-icons">home</span>
+                    <span>Home</span>
+                </button>
+                <button class="nav-item active" onclick="navigate('routineLibraryScreen')">
+                    <span class="material-icons">fitness_center</span>
+                    <span>Routines</span>
+                </button>
+                <button class="nav-item" onclick="navigate('challengesScreen')">
+                    <span class="material-icons">emoji_events</span>
+                    <span>Challenges</span>
+                </button>
+                <button class="nav-item" onclick="navigate('progressScreen')">
+                    <span class="material-icons">timeline</span>
+                    <span>Progress</span>
+                </button>
+                <button class="nav-item" onclick="navigate('settingsScreen')">
+                    <span class="material-icons">settings</span>
+                    <span>Settings</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 10: Routine Player Screen (Updated for visual guide) -->
+        <div id="routinePlayerScreen" class="screen">
+            <div class="header">
+                <span class="material-icons back-button" onclick="confirmEndRoutine()">arrow_back</span>
+                <h2 id="routinePlayerTitle">Routine Title</h2>
+                <span class="material-icons settings-button" onclick="confirmEndRoutine()">close</span>
+            </div>
+            <div class="content routine-player-content">
+                <div class="visual-guide-area">
+                    <h3>Anatomy Guide</h3>
+                    <div class="anatomy-placeholder">Anatomy diagram placeholder</div>
+                </div>
+
+                <div class="routine-info-small">
+                    <div>
+                        <b id="playerRoutineDuration">2 min</b>
+                        <span>Duration</span>
+                    </div>
+                    <div>
+                        <b id="playerRoutineFocus">Upper Body</b>
+                        <span>Focus</span>
+                    </div>
+                    <div>
+                        <b id="playerRoutineEquipment">No Bands</b>
+                        <span>Equipment</span>
+                    </div>
+                </div>
+                
+                <div class="timer-display">
+                    <span id="routineTimer">00:00</span>
+                </div>
+
+                <div class="steps-list">
+                    <h3>Steps:</h3>
+                    <ol id="routineSteps">
+                        <!-- Steps populated by JS -->
+                    </ol>
+                </div>
+
+                <div class="controls-bottom">
+                    <button class="button secondary-button" onclick="confirmEndRoutine()">Done</button>
+                    <button class="button secondary-button" onclick="skipRoutine()">Skip</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 11: Challenges Screen (Updated to be a leaderboard) -->
+        <div id="challengesScreen" class="screen">
+            <div class="header">
+                <span class="material-icons back-button" onclick="navigate('homeScreen')">arrow_back</span>
+                <h2>Leaderboard</h2>
+            </div>
+            <div class="content">
+                <div class="card">
+                    <h3>Company Pedals Challenge</h3>
+                    <p>Current Standing</p>
+                    <div class="leaderboard-list">
+                        <div class="leaderboard-item">
+                            <span class="leaderboard-rank">1</span>
+                            <div class="leaderboard-avatar" style="background-image: url('https://placehold.co/40x40/5C67DE/ffffff?text=KS'); background-size: cover;"></div>
+                            <div class="leaderboard-info">
+                                <p class="leaderboard-name">Kritika Sinha</p>
+                                <p class="leaderboard-score">You</p>
+                            </div>
+                            <span class="leaderboard-value">12,453</span>
+                        </div>
+                        <div class="leaderboard-item">
+                            <span class="leaderboard-rank">2</span>
+                            <div class="leaderboard-avatar" style="background-image: url('https://placehold.co/40x40/3B426D/ffffff?text=S'); background-size: cover;"></div>
+                            <div class="leaderboard-info">
+                                <p class="leaderboard-name">Sandal</p>
+                                <p class="leaderboard-score">Product Team</p>
+                            </div>
+                            <span class="leaderboard-value">11,987</span>
+                        </div>
+                        <div class="leaderboard-item">
+                            <span class="leaderboard-rank">3</span>
+                            <div class="leaderboard-avatar" style="background-image: url('https://placehold.co/40x40/3B426D/ffffff?text=S'); background-size: cover;"></div>
+                            <div class="leaderboard-info">
+                                <p class="leaderboard-name">Srishti</p>
+                                <p class="leaderboard-score">Sales Superstars</p>
+                            </div>
+                            <span class="leaderboard-value">11,234</span>
+                        </div>
+                        <div class="leaderboard-item">
+                            <span class="leaderboard-rank">4</span>
+                            <div class="leaderboard-avatar" style="background-image: url('https://placehold.co/40x40/3B426D/ffffff?text=A'); background-size: cover;"></div>
+                            <div class="leaderboard-info">
+                                <p class="leaderboard-name">Ayushi</p>
+                                <p class="leaderboard-score">Sales Superstars</p>
+                            </div>
+                            <span class="leaderboard-value">10,501</span>
+                        </div>
+                        <div class="leaderboard-item">
+                            <span class="leaderboard-rank">5</span>
+                            <div class="leaderboard-avatar" style="background-image: url('https://placehold.co/40x40/3B426D/ffffff?text=L'); background-size: cover;"></div>
+                            <div class="leaderboard-info">
+                                <p class="leaderboard-name">Lavanshi</p>
+                                <p class="leaderboard-score">Team B</p>
+                            </div>
+                            <span class="leaderboard-value">9,876</span>
+                        </div>
+                         <div class="leaderboard-item">
+                            <span class="leaderboard-rank">6</span>
+                            <div class="leaderboard-avatar" style="background-image: url('https://placehold.co/40x40/3B426D/ffffff?text=O'); background-size: cover;"></div>
+                            <div class="leaderboard-info">
+                                <p class="leaderboard-name">Om</p>
+                                <p class="leaderboard-score">Team C</p>
+                            </div>
+                            <span class="leaderboard-value">9,123</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <button class="nav-item" onclick="navigate('homeScreen')">
+                    <span class="material-icons">home</span>
+                    <span>Home</span>
+                </button>
+                <button class="nav-item" onclick="navigate('routineLibraryScreen')">
+                    <span class="material-icons">fitness_center</span>
+                    <span>Routines</span>
+                </button>
+                <button class="nav-item active" onclick="navigate('challengesScreen')">
+                    <span class="material-icons">emoji_events</span>
+                    <span>Challenges</span>
+                </button>
+                <button class="nav-item" onclick="navigate('progressScreen')">
+                    <span class="material-icons">timeline</span>
+                    <span>Progress</span>
+                </button>
+                <button class="nav-item" onclick="navigate('settingsScreen')">
+                    <span class="material-icons">settings</span>
+                    <span>Settings</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 12: Progress & Achievements Screen -->
+        <div id="progressScreen" class="screen">
+            <div class="header">
+                <span class="material-icons back-button" onclick="navigate('homeScreen')">arrow_back</span>
+                <h2>Progress</h2>
+            </div>
+            <div class="content">
+                <div class="progress-stats">
+                    <div class="stat-item">
+                        <h3>Total Routines</h3>
+                        <p>125</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>Minutes Moved</h3>
+                        <p>320</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>Current Streak</h3>
+                        <p>7 Days 🔥</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Activity Over Time</h3>
+                    <div class="graph-placeholder">Graph Placeholder (Daily/Weekly/Monthly)</div>
+                </div>
+
+                <div class="card">
+                    <h3>Achievements</h3>
+                    <div class="badges-grid">
+                        <div class="badge-item">
+                            <span class="material-icons badge-icon">star</span>
+                            <p>First Step (Completed)</p>
+                        </div>
+                        <div class="badge-item">
+                            <span class="material-icons badge-icon">flash_on</span>
+                            <p>Quick Start (Completed)</p>
+                        </div>
+                        <div class="badge-item locked">
+                            <span class="material-icons badge-icon">lock</span>
+                            <p>10-Day Streak (Locked)</p>
+                        </div>
+                        <div class="badge-item locked">
+                            <span class="material-icons badge-icon">lock</span>
+                            <p>Wellness Master (Locked)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Reward Catalog</h3>
+                    <div class="reward-item">
+                        <p>1500 Points: Extra Coffee Voucher</p>
+                        <button class="button primary-button small-button">Redeem</button>
+                    </div>
+                    <div class="reward-item">
+                        <p>5000 Points: Sit2Fit Branded Mug</p>
+                        <button class="button primary-button small-button">Redeem</button>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <button class="nav-item" onclick="navigate('homeScreen')">
+                    <span class="material-icons">home</span>
+                    <span>Home</span>
+                </button>
+                <button class="nav-item" onclick="navigate('routineLibraryScreen')">
+                    <span class="material-icons">fitness_center</span>
+                    <span>Routines</span>
+                </button>
+                <button class="nav-item" onclick="navigate('challengesScreen')">
+                    <span class="material-icons">emoji_events</span>
+                    <span>Challenges</span>
+                </button>
+                <button class="nav-item active" onclick="navigate('progressScreen')">
+                    <span class="material-icons">timeline</span>
+                    <span>Progress</span>
+                </button>
+                <button class="nav-item" onclick="navigate('settingsScreen')">
+                    <span class="material-icons">settings</span>
+                    <span>Settings</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 13: Settings Screen -->
+        <div id="settingsScreen" class="screen">
+            <div class="header">
+                <span class="material-icons back-button" onclick="navigate('homeScreen')">arrow_back</span>
+                <h2>Settings</h2>
+            </div>
+            <div class="content">
+                <div class="setting-section">
+                    <h3>Profile</h3>
+                    <div class="setting-item">
+                        <span>Name:</span> <span class="setting-value">Kritika Sinha</span>
+                    </div>
+                    <div class="setting-item clickable" onclick="alert('Profile editing coming soon!')">
+                        <span>Edit Profile</span>
+                        <span class="material-icons">chevron_right</span>
+                    </div>
+                </div>
+
+                <div class="setting-section">
+                    <h3>Connected Devices</h3>
+                    <p class="setting-info-text">Manage your Sit2Fit equipment.</p>
+                    <div class="setting-item">
+                        <span>Sit2Fit Pedal:</span> <span class="setting-value" id="pedalStatus">Not Connected</span>
+                    </div>
+                    <div class="setting-item clickable" onclick="connectDevice()">
+                        <span><span class="material-icons">bluetooth_searching</span> Connect Sit2Fit Kit</span>
+                        <span class="material-icons">chevron_right</span>
+                    </div>
+                </div>
+
+                <div class="setting-section">
+                    <h3>App Preferences</h3>
+                    <div class="setting-item">
+                        <span>Nudge Frequency:</span> <span class="setting-value">Medium</span>
+                    </div>
+                    <div class="setting-item clickable" onclick="navigate('onboardingNudge')">
+                        <span>Change Nudge Preferences</span>
+                        <span class="material-icons">chevron_right</span>
+                    </div>
+                    <div class="setting-item">
+                        <span>Workday Schedule:</span> <span class="setting-value">9:00 AM - 6:00 PM</span>
+                    </div>
+                    <div class="setting-item clickable" onclick="navigate('onboardingWorkday')">
+                        <span>Adjust Work Schedule</span>
+                        <span class="material-icons">chevron_right</span>
+                    </div>
+                    <div class="setting-item toggle-item">
+                        <span>Connect Outlook/M365 Calendar</span>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <p class="setting-info-text">Intelligently avoid nudges during meetings.</p>
+                </div>
+
+                <div class="setting-section">
+                    <h3>Support & Legal</h3>
+                    <div class="setting-item clickable" onclick="navigate('physioConnectScreen')">
+                        <span>Physiotherapist Connect</span>
+                        <span class="material-icons">chevron_right</span>
+                    </div>
+                    <div class="setting-item clickable" onclick="alert('Help & FAQ coming soon!')">
+                        <span>Help & FAQ</span>
+                        <span class="material-icons">chevron_right</span>
+                    </div>
+                    <div class="setting-item clickable" onclick="alert('Privacy Policy coming soon!')">
+                        <span>Privacy Policy</span>
+                        <span class="material-icons">chevron_right</span>
+                    </div>
+                </div>
+
+                <button class="button secondary-button bottom-button" onclick="alert('Logging out!')">Log Out</button>
+            </div>
+            <div class="bottom-nav">
+                <button class="nav-item" onclick="navigate('homeScreen')">
+                    <span class="material-icons">home</span>
+                    <span>Home</span>
+                </button>
+                <button class="nav-item" onclick="navigate('routineLibraryScreen')">
+                    <span class="material-icons">fitness_center</span>
+                    <span>Routines</span>
+                </button>
+                <button class="nav-item" onclick="navigate('challengesScreen')">
+                    <span class="material-icons">emoji_events</span>
+                    <span>Challenges</span>
+                </button>
+                <button class="nav-item" onclick="navigate('progressScreen')">
+                    <span class="material-icons">timeline</span>
+                    <span>Progress</span>
+                </button>
+                <button class="nav-item active" onclick="navigate('settingsScreen')">
+                    <span class="material-icons">settings</span>
+                    <span>Settings</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 14: Physiotherapist Connect Screen -->
+        <div id="physioConnectScreen" class="screen">
+            <div class="header">
+                <span class="material-icons back-button" onclick="navigate('settingsScreen')">arrow_back</span>
+                <h2>Physiotherapist Connect</h2>
+            </div>
+            <div class="content">
+                <div class="card">
+                    <h3>Book a Virtual Consult</h3>
+                    <p>Connect with an approved physiotherapist for a quick 10-minute video session.</p>
+                    <button class="button primary-button" onclick="alert('Booking calendar coming soon!')">Book 10-Min Consult</button>
+                </div>
+
+                <div class="card">
+                    <h3>Corporate Visit Schedule</h3>
+                    <p>See when our physiotherapists are visiting your office for group sessions.</p>
+                    <ul>
+                        <li>Aug 20, 2025 - 10:00 AM (Main Lobby)</li>
+                        <li>Sep 5, 2025 - 2:00 PM (Wellness Room)</li>
+                    </ul>
+                    <button class="button secondary-button" onclick="alert('Registration coming soon!')">Register for a Session</button>
+                </div>
+
+                <div class="card">
+                    <h3>Resources</h3>
+                    <p>Helpful articles and FAQs about common workplace discomforts.</p>
+                    <a href="#" class="text-link" onclick="alert('Resource library coming soon!')">Browse Articles</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Screen 15: Create Custom Routine Screen -->
+        <div id="createRoutineScreen" class="screen">
+            <div class="header">
+                <span class="material-icons back-button" onclick="navigate('routineLibraryScreen')">arrow_back</span>
+                <h2>Create Custom Routine</h2>
+            </div>
+            <div class="content">
+                <div class="input-group">
+                    <label for="newRoutineName">Routine Name</label>
+                    <input type="text" id="newRoutineName" placeholder="e.g., 'My Morning Stretch'">
+                </div>
+                
+                <h3>Select Moves</h3>
+                <div class="routine-list" id="createRoutineList">
+                    <!-- Dynamic routine cards with checkboxes will be inserted here by JS -->
+                </div>
+
+                <div class="footer-buttons">
+                    <button class="button secondary-button" onclick="navigate('routineLibraryScreen')">Cancel</button>
+                    <button class="button primary-button" onclick="saveCustomRoutine()">Save Routine</button>
+                </div>
+            </div>
+        </div>
+    </div> <!-- End of App Container -->
+
+    <script>
+        // --- DATA ---
+        let ROUTINES = [
+            { id: 'seatedTwist', title: '2-min Seated Twist', focus: 'Spine Mobility', equipment: 'No Equipment', duration: 2, steps: ['Sit upright...', 'Twist gently...', 'Hold for 30s...'] },
+            { id: 'wristShoulderStretch', title: '5-min Wrist & Shoulder Stretch', focus: 'Upper Body', equipment: 'No Equipment', duration: 5, steps: ['Begin with wrist circles...', 'Extend one arm...', 'Hold for 30s...'] },
+            { id: 'pedalLegCycle', title: '3-min Pedal Leg Cycle', focus: 'Lower Body, Circulation', equipment: 'Sit2Fit Pedal', duration: 3, steps: ['Place your feet on the pedal...', 'Cycle moderately...', 'Increase pace...'] },
+            { id: 'bandedRows', title: '4-min Banded Rows', focus: 'Back Strength', equipment: 'Resistance Bands', duration: 4, steps: ['Sit on floor...', 'Pull band towards chest...', 'Repeat...'] },
+            { id: 'standingSideBend', title: '2-min Standing Side Bend', focus: 'Core, Obliques', equipment: 'No Equipment', duration: 2, steps: ['Stand tall...', 'Bend to the right...', 'Repeat on left...'] },
+            { id: 'neckCircles', title: '1-min Neck Circles', focus: 'Neck Mobility', equipment: 'No Equipment', duration: 1, steps: ['Drop head forward...', 'Gently roll right...', 'Return to center...'] },
+            { id: 'deskChairPushups', title: '2-min Desk Chair Pushups', focus: 'Chest, Arms', equipment: 'No Equipment', duration: 2, steps: ['Place hands on desk...', 'Step feet back...', 'Lower and push up...'] },
+            { id: 'calfRaises', title: '3-min Standing Calf Raises', focus: 'Lower Legs', equipment: 'No Equipment', duration: 3, steps: ['Stand with feet flat...', 'Raise up on toes...', 'Lower slowly...'] },
+            { id: 'seatedLegRaises', title: '2-min Seated Leg Raises', focus: 'Core, Quads', equipment: 'No Equipment', duration: 2, steps: ['Sit tall...', 'Raise one leg...', 'Hold and switch...'] },
+            { id: 'shoulderSqueeze', title: '2-min Shoulder Blade Squeeze', focus: 'Posture', equipment: 'No Equipment', duration: 2, steps: ['Sit upright...', 'Squeeze shoulder blades...', 'Hold and release...'] },
+            { id: 'forearmStretch', title: '1-min Forearm Stretch', focus: 'Wrist, Forearms', equipment: 'No Equipment', duration: 1, steps: ['Extend one arm...', 'Bend fingers back...', 'Switch sides...'] },
+            { id: 'seatedHamstringStretch', title: '3-min Seated Hamstring Stretch', focus: 'Lower Body, Flexibility', equipment: 'No Equipment', duration: 3, steps: ['Sit on chair edge...', 'Straighten one leg...', 'Lean forward...', 'Switch sides...'] },
+            { id: 'chestOpener', title: '2-min Chest Opener', focus: 'Chest, Posture', equipment: 'No Equipment', duration: 2, steps: ['Clasp hands behind back...', 'Gently lift arms...', 'Hold and release...'] },
+            { id: 'footTaps', title: '3-min Foot Taps', focus: 'Lower Body, Circulation', equipment: 'No Equipment', duration: 3, steps: ['Tap feet on floor...', 'Alternate rapidly...', 'Keep core engaged...'] },
+            { id: 'bandedShoulderPress', title: '5-min Banded Shoulder Press', focus: 'Shoulders', equipment: 'Resistance Bands', duration: 5, steps: ['Stand on band...', 'Press arms overhead...', 'Lower slowly...'] },
+            { id: 'bandedChestPress', title: '5-min Banded Chest Press', focus: 'Chest', equipment: 'Resistance Bands', duration: 5, steps: ['Loop band behind back...', 'Press arms forward...', 'Release slowly...'] },
+            { id: 'pedalArmCircles', title: '3-min Pedal Arm Circles', focus: 'Upper Body, Circulation', equipment: 'Sit2Fit Pedal', duration: 3, steps: ['Hold pedals in hands...', 'Perform forward circles...', 'Reverse direction...'] },
+            { id: 'pedalHighKnees', title: '4-min Pedal High Knees', focus: 'Lower Body, Cardio', equipment: 'Sit2Fit Pedal', duration: 4, steps: ['Attach pedals...', 'Lift knees high...', 'Maintain quick pace...'] },
+            { id: 'lumbarRotation', title: '2-min Lumbar Rotation', focus: 'Lower Back', equipment: 'No Equipment', duration: 2, steps: ['Lie on back...', 'Drop knees to one side...', 'Switch sides...'] },
+            { id: 'wristFlexionExtension', title: '1-min Wrist Flexion/Extension', focus: 'Wrists', equipment: 'No Equipment', duration: 1, steps: ['Extend arm...', 'Flex wrist up...', 'Extend wrist down...', 'Switch sides...'] },
+            { id: 'anklesCircles', title: '1-min Ankle Circles', focus: 'Ankles', equipment: 'No Equipment', duration: 1, steps: ['Lift foot...', 'Rotate ankle in circles...', 'Switch direction...', 'Switch legs...'] },
+            { id: 'seatedCatCow', title: '3-min Seated Cat-Cow', focus: 'Spine Mobility', equipment: 'No Equipment', duration: 3, steps: ['Sit tall...', 'Arch back for cow pose...', 'Round back for cat pose...', 'Repeat smoothly...'] },
+            { id: 'pedalSideLegLift', title: '4-min Pedal Side Leg Lift', focus: 'Hips, Glutes', equipment: 'Sit2Fit Pedal', duration: 4, steps: ['Stand next to chair...', 'Attach pedal to ankle...', 'Lift leg to the side...', 'Switch sides...'] },
+            { id: 'bandedBicepCurl', title: '3-min Banded Bicep Curl', focus: 'Biceps', equipment: 'Resistance Bands', duration: 3, steps: ['Stand on band...', 'Curl hands to shoulders...', 'Lower slowly...', 'Repeat...'] }
+        ];
+
+        let CUSTOM_ROUTINES = [];
+        let currentScreenId = 'splashScreen';
+        let timerInterval;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderRoutineLibrary();
+            renderCreateRoutineList();
+
+            // Add click listeners for radio and checkbox cards
+            document.querySelectorAll('.radio-card, .chip-card, .checkbox-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const input = this.querySelector('input');
+                    if (input.type === 'radio') {
+                        // For radio buttons, unselect all other cards
+                        document.querySelectorAll(`input[name="${input.name}"]`).forEach(otherInput => {
+                            otherInput.closest('label').classList.remove('selected');
+                        });
+                        this.classList.add('selected');
+                    } else if (input.type === 'checkbox') {
+                        this.classList.toggle('selected');
+                    }
+                });
+            });
+        });
+        
+        // --- ROUTINE LIST RENDERING ---
+        function renderRoutineCard(routine, parentElementId, showCheckbox = false) {
+            const card = document.createElement('div');
+            card.classList.add('routine-card');
+            card.setAttribute('data-routine-id', routine.id);
+            if (!showCheckbox) {
+                card.onclick = () => startRoutine(routine.id);
+            }
+
+            let checkboxHtml = '';
+            if (showCheckbox) {
+                checkboxHtml = `<input type="checkbox" name="selectedRoutines" value="${routine.id}">`;
+            }
+
+            card.innerHTML = `
+                ${checkboxHtml}
+                <div class="routine-thumbnail">GIF / Video Placeholder</div>
+                <div class="routine-info">
+                    <h4>${routine.title}</h4>
+                    <p>Focus: ${routine.focus}</p>
+                    <p>Equipment: ${routine.equipment}</p>
+                </div>
+            `;
+            document.getElementById(parentElementId).appendChild(card);
+        }
+
+        function renderRoutineLibrary() {
+            const libraryList = document.getElementById('routineLibraryList');
+            libraryList.innerHTML = '';
+            const allRoutines = [...ROUTINES, ...CUSTOM_ROUTINES];
+            allRoutines.forEach(routine => renderRoutineCard(routine, 'routineLibraryList'));
+        }
+
+        function renderCreateRoutineList() {
+            const createList = document.getElementById('createRoutineList');
+            createList.innerHTML = '';
+            ROUTINES.forEach(routine => renderRoutineCard(routine, 'createRoutineList', true));
+        }
+
+        function saveCustomRoutine() {
+            const routineName = document.getElementById('newRoutineName').value;
+            const selectedRoutineIds = Array.from(document.querySelectorAll('#createRoutineList input[name="selectedRoutines"]:checked'))
+                                             .map(input => input.value);
+
+            if (!routineName) {
+                alert('Please enter a name for your custom routine.');
+                return;
+            }
+            if (selectedRoutineIds.length === 0) {
+                alert('Please select at least one move for your custom routine.');
+                return;
+            }
+
+            const selectedMoves = ROUTINES.filter(r => selectedRoutineIds.includes(r.id));
+            const newRoutine = {
+                id: 'custom_' + Date.now(),
+                title: routineName,
+                focus: selectedMoves.map(m => m.focus).join(', '),
+                equipment: selectedMoves.map(m => m.equipment).filter((v, i, a) => a.indexOf(v) === i).join(', '),
+                duration: selectedMoves.reduce((sum, r) => sum + r.duration, 0),
+                steps: selectedMoves.flatMap(m => m.steps)
+            };
+
+            CUSTOM_ROUTINES.push(newRoutine);
+            alert(`Custom routine "${routineName}" saved successfully!`);
+            renderRoutineLibrary(); // Update the main library
+            navigate('routineLibraryScreen');
+        }
+
+        // --- NAVIGATION ---
+        function navigate(screenId) {
+            const currentScreen = document.getElementById(currentScreenId);
+            const nextScreen = document.getElementById(screenId);
+            
+            if (currentScreen) {
+                currentScreen.classList.remove('active');
+            }
+            if (nextScreen) {
+                nextScreen.classList.add('active');
+            }
+
+            // Update bottom navigation active state
+            if (document.querySelector('.bottom-nav')) {
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.getAttribute('onclick').includes(screenId)) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+
+            currentScreenId = screenId;
+            window.scrollTo(0, 0); // Scroll to top of the new screen
+        }
+
+        function finishOnboarding() {
+            // In a real app, this is where you'd save user data and then navigate to the home screen.
+            alert('Onboarding complete! Your data has been saved.');
+            navigate('homeScreen');
+        }
+        
+        function startRoutine(routineId) {
+            const allRoutines = [...ROUTINES, ...CUSTOM_ROUTINES];
+            const routine = allRoutines.find(r => r.id === routineId);
+            if (!routine) {
+                alert('Routine not found!');
+                return;
+            }
+
+            // Update Routine Player screen with details
+            document.getElementById('routinePlayerTitle').textContent = routine.title;
+            document.getElementById('playerRoutineDuration').textContent = `${routine.duration} min`;
+            document.getElementById('playerRoutineFocus').textContent = routine.focus;
+            document.getElementById('playerRoutineEquipment').textContent = routine.equipment;
+            
+            const stepsList = document.getElementById('routineSteps');
+            stepsList.innerHTML = ''; // Clear existing steps
+            routine.steps.forEach(step => {
+                const li = document.createElement('li');
+                li.textContent = step;
+                stepsList.appendChild(li);
+            });
+            
+            // Set up timer
+            let duration = routine.duration * 60;
+            const timerDisplay = document.getElementById('routineTimer');
+            timerDisplay.textContent = formatTime(duration);
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                duration--;
+                timerDisplay.textContent = formatTime(duration);
+                if (duration <= 0) {
+                    clearInterval(timerInterval);
+                    alert('Routine complete!');
+                    navigate('homeScreen');
+                }
+            }, 1000);
+
+            navigate('routinePlayerScreen');
+        }
+
+        function confirmEndRoutine() {
+            if (confirm('Are you sure you want to end this routine? Your progress will not be saved.')) {
+                clearInterval(timerInterval);
+                navigate('homeScreen');
+            }
+        }
+
+        function skipRoutine() {
+             clearInterval(timerInterval);
+             alert('Routine skipped!');
+             navigate('homeScreen');
+        }
+        
+        function connectDevice() {
+            const pedalStatus = document.getElementById('pedalStatus');
+            pedalStatus.textContent = 'Connecting...';
+            setTimeout(() => {
+                pedalStatus.textContent = 'Sit2Fit Pedal (Connected)';
+                alert('Sit2Fit Kit connected successfully!');
+            }, 2000);
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+        
+        function showMessage(message) {
+            const appContainer = document.getElementById('app-container');
+            const messageBox = document.createElement('div');
+            messageBox.style.cssText = `
+                position: absolute;
+                bottom: 100px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: rgba(0, 0, 0, 0.7);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 12px;
+                z-index: 1000;
+                font-size: 1rem;
+                opacity: 0;
+                transition: opacity 0.5s ease-in-out;
+            `;
+            messageBox.textContent = message;
+            appContainer.appendChild(messageBox);
+            
+            setTimeout(() => {
+                messageBox.style.opacity = 1;
+            }, 10);
+
+            setTimeout(() => {
+                messageBox.style.opacity = 0;
+                setTimeout(() => messageBox.remove(), 500);
+            }, 3000);
+        }
+
+        // Override default alerts with a custom message box
+        window.alert = showMessage;
+
+    </script>
+</body>
+</html>
